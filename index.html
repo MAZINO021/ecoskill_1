@@ -160,7 +160,7 @@ h3{font-size:22px}
 /* timeline */
 .timeline{list-style:none;padding:0;margin:28px auto 0;max-width:760px;position:relative}
 .timeline:before{content:"";position:absolute;left:19px;top:8px;bottom:8px;width:3px;background:linear-gradient(180deg,var(--blossom-deep),var(--gold-deep),var(--moss));border-radius:3px;z-index:1}
-.t-item{position:relative;padding:0 0 26px 72px;min-height:54px}
+.timeline .t-item{position:relative;padding:0 0 26px 72px;min-height:54px;list-style:none}
 .t-marker{position:absolute;left:0;top:0;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-deep));display:grid;place-items:center;font-weight:700;color:#fff;font-family:'Cormorant Garamond',serif;font-size:17px;box-shadow:0 2px 8px rgba(120,90,30,.35);z-index:2}
 .t-item:last-child .t-marker{background:linear-gradient(135deg,var(--moss),var(--moss-deep))}
 .t-body{padding-top:2px}
@@ -180,8 +180,8 @@ h3{font-size:22px}
 .auth-msg.ok{color:var(--moss-deep)}.auth-msg.err{color:#b3402f}
 .auth-side h3{margin-bottom:10px}
 .auth-side ul{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-direction:column;gap:10px}
-.auth-side li{font-size:14.5px;color:var(--ink-soft);padding-left:24px;position:relative}
-.auth-side li:before{content:"✓";position:absolute;left:0;color:var(--moss);font-weight:700}
+.auth-side ul li{font-size:14.5px;color:var(--ink-soft);padding-left:24px;position:relative}
+.auth-side ul li:before{content:"✓";position:absolute;left:0;color:var(--moss);font-weight:700}
 
 /* pricing */
 .plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:28px;align-items:stretch}
@@ -492,6 +492,31 @@ html[lang="hi"] h1,html[lang="hi"] h2,html[lang="hi"] h3,html[lang="hi"] h4{font
   </div>
 </footer>
 
+<!-- Eco-guide floating chat -->
+<button class="chat-fab" id="chatFab" aria-label="Open Eco-guide chat">
+  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <span class="chat-fab-ping"></span>
+</button>
+<div class="chat-window" id="chatWindow" hidden>
+  <header class="chat-head">
+    <div class="chat-head-info"><div class="chat-avatar">E</div><div><strong>Eco-guide</strong><p>Wellness Q&amp;A assistant</p></div></div>
+    <button class="chat-close" id="chatClose" aria-label="Close chat">✕</button>
+  </header>
+  <div class="chat-body" id="chatBody">
+    <div class="msg msg-bot"><p>Namaste — I'm the Eco-guide. Ask me about the five dimensions, the 7-day trial, the plans, pricing, or Prof. Tripathi's research.</p></div>
+  </div>
+  <div class="chat-suggest" id="chatSuggest">
+    <button class="chip-btn" data-q="What is Eco-skills?">What is Eco-skills?</button>
+    <button class="chip-btn" data-q="How does the 7 day trial work?">7-day trial?</button>
+    <button class="chip-btn" data-q="What are the benefits?">Benefits?</button>
+    <button class="chip-btn" data-q="What is the price?">Pricing?</button>
+  </div>
+  <form class="chat-form" id="chatForm">
+    <input type="text" id="chatInput" placeholder="Ask the Eco-guide…" autocomplete="off" />
+    <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+  </form>
+</div>
+
 <script>
 (function(){
   'use strict';
@@ -589,6 +614,7 @@ html[lang="hi"] h1,html[lang="hi"] h2,html[lang="hi"] h3,html[lang="hi"] h4{font
      ============================================================ */
   var fab=document.getElementById('chatFab'),win=document.getElementById('chatWindow'),closeBtn=document.getElementById('chatClose'),
       form=document.getElementById('chatForm'),input=document.getElementById('chatInput'),cbody=document.getElementById('chatBody'),suggest=document.getElementById('chatSuggest');
+  if(fab && win && form){
   function openChat(){win.hidden=false;setTimeout(function(){input&&input.focus();},200);}
   function closeChat(){win.hidden=true;}
   fab.addEventListener('click',function(){win.hidden?openChat():closeChat();});
@@ -626,6 +652,7 @@ html[lang="hi"] h1,html[lang="hi"] h2,html[lang="hi"] h3,html[lang="hi"] h4{font
   function ask(q){if(!q)return;addMsg(q,'user');if(suggest)suggest.style.display='none';var t=typing();var r=findReply(q);setTimeout(function(){t.remove();addMsg(r,'bot');},450+Math.min(900,r.length*6));}
   form.addEventListener('submit',function(e){e.preventDefault();var q=input.value.trim();if(!q)return;input.value='';ask(q);});
   if(suggest){suggest.addEventListener('click',function(e){var b=e.target.closest('.chip-btn');if(!b)return;ask(b.dataset.q);});}
+  } /* end chat guard */
 })();
 </script>
 
