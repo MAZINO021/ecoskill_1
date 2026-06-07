@@ -256,6 +256,34 @@ html[lang="hi"] h1,html[lang="hi"] h2,html[lang="hi"] h3,html[lang="hi"] h4{font
 .hero-points li:before{content:"";position:absolute;left:0;top:8px;width:14px;height:14px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--moss));box-shadow:0 1px 4px rgba(120,90,30,.4)}
 @media(max-width:820px){.lang-toggle{padding:3px 8px}}
 
+/* floating founder video — bottom left */
+.vid-box{position:fixed;left:18px;bottom:18px;z-index:60;width:128px;border-radius:16px;overflow:hidden;
+  box-shadow:0 14px 38px rgba(40,25,10,.45);background:#000;border:2px solid rgba(255,255,255,.55);
+  transition:transform .25s ease, opacity .25s ease}
+.vid-box:hover{transform:translateY(-3px)}
+.vid-box.hidden{display:none}
+.vid-box video{display:block;width:100%;height:auto;cursor:pointer}
+.vid-controls{position:absolute;left:0;right:0;bottom:0;display:flex;gap:6px;justify-content:center;
+  padding:7px 6px;background:linear-gradient(0deg,rgba(0,0,0,.6),transparent)}
+.vid-controls button{width:30px;height:30px;border:none;border-radius:50%;cursor:pointer;
+  background:rgba(255,255,255,.92);color:var(--moss-deep);display:grid;place-items:center;font-size:13px;
+  transition:background .2s,transform .2s}
+.vid-controls button:hover{background:#fff;transform:scale(1.08)}
+.vid-close{position:absolute;top:6px;right:6px;width:24px;height:24px;border:none;border-radius:50%;
+  background:rgba(0,0,0,.55);color:#fff;cursor:pointer;font-size:13px;line-height:1;display:grid;place-items:center;z-index:2}
+.vid-close:hover{background:rgba(0,0,0,.8)}
+.vid-label{position:absolute;top:6px;left:8px;color:#fff;font-size:10.5px;font-weight:600;
+  text-shadow:0 1px 3px rgba(0,0,0,.7);z-index:2;pointer-events:none}
+/* reopen tab after closing */
+.vid-reopen{position:fixed;left:18px;bottom:18px;z-index:60;display:none;align-items:center;gap:7px;
+  background:linear-gradient(135deg,var(--moss),var(--moss-deep));color:#fff;border:none;border-radius:30px;
+  padding:10px 16px;font-family:'Outfit',sans-serif;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 10px 26px rgba(40,25,10,.4)}
+.vid-reopen.show{display:flex}
+@media(max-width:820px){
+  .vid-box{width:104px;left:12px;bottom:12px}
+  .vid-reopen{left:12px;bottom:12px;padding:9px 14px;font-size:12px}
+}
+
 </style>
 </head>
 <body>
@@ -491,6 +519,18 @@ html[lang="hi"] h1,html[lang="hi"] h2,html[lang="hi"] h3,html[lang="hi"] h4{font
     <div class="footer-bottom"><p data-i18n="foot_disclaimer">© 2026 Eco-skills · A wellness programme — not a substitute for medical care.</p></div>
   </div>
 </footer>
+
+<!-- Floating founder video (bottom-left) -->
+<div class="vid-box" id="vidBox">
+  <span class="vid-label">Prof. Tripathi</span>
+  <button class="vid-close" id="vidClose" aria-label="Close video">✕</button>
+  <video id="founderVid" src="tripathi.mp4" autoplay muted loop playsinline></video>
+  <div class="vid-controls">
+    <button id="vidPlay" aria-label="Play or pause">⏸</button>
+    <button id="vidMute" aria-label="Mute or unmute">🔇</button>
+  </div>
+</div>
+<button class="vid-reopen" id="vidReopen" aria-label="Show video">▶ Prof. Tripathi</button>
 
 <!-- Eco-guide floating chat -->
 <button class="chat-fab" id="chatFab" aria-label="Open Eco-guide chat">
@@ -786,5 +826,29 @@ html[lang="hi"] h1,html[lang="hi"] h2,html[lang="hi"] h3,html[lang="hi"] h4{font
 })();
 </script>
 
+<script>
+/* floating founder video controls */
+(function(){
+  var box=document.getElementById('vidBox'), v=document.getElementById('founderVid'),
+      playBtn=document.getElementById('vidPlay'), muteBtn=document.getElementById('vidMute'),
+      closeBtn=document.getElementById('vidClose'), reopen=document.getElementById('vidReopen');
+  if(!box||!v) return;
+
+  function syncPlay(){ playBtn.textContent = v.paused ? '▶' : '⏸'; }
+  function syncMute(){ muteBtn.textContent = v.muted ? '🔇' : '🔊'; }
+
+  // tap video toggles play/pause
+  v.addEventListener('click', function(){ v.paused ? v.play() : v.pause(); });
+  v.addEventListener('play', syncPlay);
+  v.addEventListener('pause', syncPlay);
+
+  playBtn.addEventListener('click', function(e){ e.stopPropagation(); v.paused ? v.play() : v.pause(); });
+  muteBtn.addEventListener('click', function(e){ e.stopPropagation(); v.muted=!v.muted; if(!v.muted&&v.paused)v.play(); syncMute(); });
+  closeBtn.addEventListener('click', function(){ box.classList.add('hidden'); reopen.classList.add('show'); v.pause(); });
+  reopen.addEventListener('click', function(){ box.classList.remove('hidden'); reopen.classList.remove('show'); v.play(); });
+
+  syncPlay(); syncMute();
+})();
+</script>
 </body>
 </html>
