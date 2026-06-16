@@ -1110,8 +1110,8 @@ function startIdle(){ idleOn=true; setBase(); show('idle');
 function stopIdle(){ idleOn=false; clearTimeout(idleTimer); char.classList.remove('anim-breathe','anim-sway'); }
 
 /* ---------- DRAG vs TAP ---------- */
-let dragActive=false, didDrag=false, startX=0, startY=0, originLeft=0, originTop=0;
-const DRAG_THRESHOLD=5; // px of movement before it counts as a drag
+let dragActive=false, didDrag=false, suppressClick=false, startX=0, startY=0, originLeft=0, originTop=0;
+const DRAG_THRESHOLD=10; // px of movement before it counts as a drag (forgiving for touch)
 
 function onDown(e){
   const pt = e.touches ? e.touches[0] : e;
@@ -1147,7 +1147,7 @@ function onMove(e){
     root.style.top=newTop+'px';
   }
 }
-function onUp(){
+function onUp(e){
   window.removeEventListener('mousemove',onMove);
   window.removeEventListener('touchmove',onMove);
   window.removeEventListener('mouseup',onUp);
@@ -1155,8 +1155,15 @@ function onUp(){
   root.classList.remove('dragging');
   const wasDrag=didDrag;
   dragActive=false; didDrag=false;
-  if(wasDrag){ show('happy'); say("Here's good!",1400); setTimeout(()=>{ if(idleOn) show('idle'); },1500); }
-  else { tapAction(); }   // no real movement => treat as a tap
+  if(wasDrag){
+    suppressClick=true;  // stop the click handler from also firing
+    show('happy'); say("Here's good!",1400); setTimeout(()=>{ if(idleOn) show('idle'); },1500);
+  } else if(e && e.type==='touchend'){
+    // touch never fires a synthetic click reliably -> open panel here
+    suppressClick=true;
+    tapAction();
+  }
+  // for mouse: let the native 'click' event call tapAction()
 }
 function tapAction(){
   if(chat.classList.contains('open')){ closeChat(); return; }
@@ -1165,6 +1172,12 @@ function tapAction(){
 }
 char.addEventListener('mousedown',onDown);
 char.addEventListener('touchstart',onDown,{passive:true});
+/* click fallback: if pointer logic ever misses, a plain click still opens the panel */
+char.addEventListener('click',function(e){
+  if(suppressClick){ suppressClick=false; return; } // a real drag already handled it
+  e.stopPropagation();
+  tapAction();
+});
 
 /* ---------- chat ---------- */
 const QUICK=["What is Eco-skills?","The 5 daily inputs","The plans","The founder","Take the test"];
